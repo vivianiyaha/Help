@@ -1,9 +1,10 @@
 import streamlit as st
-from tonclient import TonClient, KeyPair
+from tonclient import TonClient
+from tonclient.utils import KeyPair
 from tonclient.types import ClientConfig, NetworkConfig
 
-# Initialize the TON Client (use proper configuration)
-client_config = ClientConfig(network=NetworkConfig(endpoints=["https://testnet.toncenter.com/api/v2/jsonRPC"]))  # Set the correct endpoint
+# Initialize the TON Client
+client_config = ClientConfig(network=NetworkConfig(endpoints=["https://testnet.toncenter.com/api/v2/jsonRPC"]))
 client = TonClient(config=client_config)
 
 # Replace with your actual deployed contract address
