@@ -1,7 +1,6 @@
 import streamlit as st
+from tonclient import TonClient
 from tonclient.errors import TonException
-from tonclient.client import TonClient, ClientConfig
-from tonclient.types import ParamsOfProcessMessage, ParamsOfEncodeMessage, CallSet, Signer
 
 # Initialize TON Client
 client = TonClient(config=ClientConfig(network='https://main.ton.dev'))
