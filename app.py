@@ -1,9 +1,14 @@
 import streamlit as st
 from tonclient import TonClient
-from tonclient.errors import TonException
+from tonclient.exceptions import TonException
 
 # Initialize TON Client
 client = TonClient(config=ClientConfig(network='https://main.ton.dev'))
+try:
+    # Your TonClient-related code
+    pass
+except Exception as e:
+    st.error(f"An error occurred: {str(e)}")
 
 # TON smart contract address (Replace with your actual address)
 CONTRACT_ADDRESS = "EQAgtYYtQjCyPk8BmaEm__RBjJxcJLGIkwl4MrdxBH3JJof7"
