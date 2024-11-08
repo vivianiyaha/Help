@@ -1,8 +1,10 @@
 import streamlit as st
-from ton_client import TonClient  # Replace with actual TON SDK library imports
+from tonclient import TonClient, KeyPair
+from tonclient.types import ClientConfig, NetworkConfig
 
-# Initialize the TON Client (ensure you're using the correct SDK)
-client = TonClient(network="testnet")  # Use correct client initialization as per your library
+# Initialize the TON Client (use proper configuration)
+client_config = ClientConfig(network=NetworkConfig(endpoints=["https://testnet.toncenter.com/api/v2/jsonRPC"]))  # Set the correct endpoint
+client = TonClient(config=client_config)
 
 # Replace with your actual deployed contract address
 contract_address = "EQAgtYYtQjCyPk8BmaEm__RBjJxcJLGIkwl4MrdxBH3JJof7"
@@ -12,8 +14,8 @@ st.title("TON Blockchain Trading Bot")
 # Trading bot status
 st.subheader("Bot Status")
 
-# Placeholder for the bot's status, fetched from the contract (if available)
-bot_status = "Inactive"  # You may want to fetch this from the contract
+# Placeholder for the bot's status, fetched from the contract
+bot_status = "Inactive"  # You should implement logic to fetch the bot's status from the contract
 
 st.write(f"Current bot status: **{bot_status}**")
 
@@ -30,11 +32,15 @@ recipient_address = st.text_input("Recipient TON Address for Withdrawal")
 # Define functions for each action: start, stop, and withdraw
 def start_trading(amount, pair):
     try:
-        # Example: Call the start function on the smart contract
-        response = client.call_smart_contract(
-            contract_address, 
-            "start_trade", 
-            {"amount": amount, "pair": pair}
+        # Define parameters for the contract call
+        params = {
+            "amount": amount,
+            "pair": pair
+        }
+        response = client.processing.process_message(
+            address=contract_address,
+            abi="start_trade",  # Replace with your actual ABI method
+            parameters=params
         )
         st.success("Trading started successfully!")
         return response
@@ -43,8 +49,12 @@ def start_trading(amount, pair):
 
 def stop_trading():
     try:
-        # Example: Call the stop function on the smart contract
-        response = client.call_smart_contract(contract_address, "stop_trade", {})
+        # Define parameters for the stop trading method
+        response = client.processing.process_message(
+            address=contract_address,
+            abi="stop_trade",  # Replace with your actual ABI method
+            parameters={}
+        )
         st.success("Trading stopped successfully!")
         return response
     except Exception as e:
@@ -56,11 +66,14 @@ def withdraw_funds(recipient):
         return
 
     try:
-        # Example: Call the withdraw function on the smart contract
-        response = client.call_smart_contract(
-            contract_address, 
-            "withdraw", 
-            {"recipient": recipient}
+        # Define parameters for the withdraw method
+        params = {
+            "recipient": recipient
+        }
+        response = client.processing.process_message(
+            address=contract_address,
+            abi="withdraw",  # Replace with your actual ABI method
+            parameters=params
         )
         st.success("Funds withdrawn successfully!")
         return response
