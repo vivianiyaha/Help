@@ -1,4 +1,5 @@
 import streamlit as st
+import TonClient
 # Replace with actual TON SDK library imports
 # from ton_client import TonClient, Wallet  # Example imports
 
