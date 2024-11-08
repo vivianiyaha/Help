@@ -1,105 +1,81 @@
 import streamlit as st
-from tonclient import TonClient
-from tonclient.exceptions import TonException
+import TonClient
 
-# Initialize TON Client
-client = TonClient(config=ClientConfig(network='https://main.ton.dev'))
-try:
-    # Your TonClient-related code
-    pass
-except Exception as e:
-    st.error(f"An error occurred: {str(e)}")
+# Replace with actual TON SDK library imports
+# from ton_client import TonClient, Wallet  # Example imports
 
-# TON smart contract address (Replace with your actual address)
-CONTRACT_ADDRESS = "EQAgtYYtQjCyPk8BmaEm__RBjJxcJLGIkwl4MrdxBH3JJof7"
+# Initialize the TON Client
+# client = TonClient(network="testnet")  # Connect to mainnet, replace with correct connection if needed
 
-# Streamlit interface
+# Replace with your actual deployed contract address
+contract_address = "EQAgtYYtQjCyPk8BmaEm__RBjJxcJLGIkwl4MrdxBH3JJof7"
+
 st.title("TON Blockchain Trading Bot")
 
-# Actions
-st.subheader("Control Panel")
-
-# Start Trading Bot
-if st.button("Start Bot"):
-    try:
-        call_set = CallSet(function_name="startBot", input={})
-        params = ParamsOfEncodeMessage(
-            abi=None,  # Removed ABI
-            address=CONTRACT_ADDRESS,
-            call_set=call_set,
-            signer=Signer.None(),
-        )
-        encoded = client.abi.encode_message(params=params)
-        send_msg = ParamsOfProcessMessage(
-            message=encoded.message,
-            send_events=False
-        )
-        client.processing.process_message(params=send_msg)
-        st.success("Trading bot started successfully.")
-    except TonException as e:
-        st.error(f"Failed to start the bot: {e}")
-
-# Stop Trading Bot
-if st.button("Stop Bot"):
-    try:
-        call_set = CallSet(function_name="stopBot", input={})
-        params = ParamsOfEncodeMessage(
-            abi=None,  # Removed ABI
-            address=CONTRACT_ADDRESS,
-            call_set=call_set,
-            signer=Signer.None(),
-        )
-        encoded = client.abi.encode_message(params=params)
-        send_msg = ParamsOfProcessMessage(
-            message=encoded.message,
-            send_events=False
-        )
-        client.processing.process_message(params=send_msg)
-        st.success("Trading bot stopped successfully.")
-    except TonException as e:
-        st.error(f"Failed to stop the bot: {e}")
-
-# Withdraw Funds
-st.subheader("Withdraw Funds")
-
-recipient_address = st.text_input("Enter recipient TON address for withdrawal:")
-withdraw_amount = st.number_input("Enter amount to withdraw:", min_value=0.0, step=1.0)
-
-if st.button("Withdraw"):
-    if recipient_address:
-        try:
-            call_set = CallSet(
-                function_name="withdraw",
-                input={"to": recipient_address, "amount": int(withdraw_amount * 10**9)}  # assuming amount in TON
-            )
-            params = ParamsOfEncodeMessage(
-                abi=None,  # Removed ABI
-                address=CONTRACT_ADDRESS,
-                call_set=call_set,
-                signer=Signer.None(),
-            )
-            encoded = client.abi.encode_message(params=params)
-            send_msg = ParamsOfProcessMessage(
-                message=encoded.message,
-                send_events=False
-            )
-            client.processing.process_message(params=send_msg)
-            st.success(f"Withdrawal of {withdraw_amount} TON to {recipient_address} successful.")
-        except TonException as e:
-            st.error(f"Failed to withdraw funds: {e}")
-    else:
-        st.warning("Please enter a valid recipient address.")
-
-# Displaying the status
+# Trading bot status
 st.subheader("Bot Status")
-if st.button("Refresh Status"):
-    try:
-        # Fetch the current bot status (implement according to contract)
-        # status = client.net.query_collection(...)
-        # Assuming a dummy status response here
-        status = {"is_running": True, "balance": 100.0}  # Replace with actual query and handling
-        st.write("Status:", "Running" if status["is_running"] else "Stopped")
-        st.write("Balance:", f"{status['balance']} TON")
-    except TonException as e:
-        st.error(f"Failed to fetch bot status: {e}")
 
+# Placeholder for the bot's status, fetched from the contract
+bot_status = "Inactive"  # You may want to fetch this from the contract
+
+st.write(f"Current bot status: **{bot_status}**")
+
+# Trading parameters
+st.subheader("Bot Controls")
+
+# User Inputs for Trading (Modify these inputs as per your bot’s requirements)
+trade_amount = st.number_input("Trade Amount", min_value=0.01, step=0.01)
+trade_pair = st.text_input("Trade Pair (e.g., BTC/USDT)")
+
+# Input for recipient address for withdrawal
+recipient_address = st.text_input("Recipient TON Address for Withdrawal")
+
+# Define functions for each action: start, stop, and withdraw
+def start_trading(amount, pair):
+    try:
+        # Call the start function on the smart contract
+        response = client.call_smart_contract(
+            contract_address, 
+            "start_trade", 
+            {"amount": amount, "pair": pair}
+        )
+        st.success("Trading started successfully!")
+        return response
+    except Exception as e:
+        st.error(f"Error starting trade: {e}")
+
+def stop_trading():
+    try:
+        # Call the stop function on the smart contract
+        response = client.call_smart_contract(contract_address, "stop_trade")
+        st.success("Trading stopped successfully!")
+        return response
+    except Exception as e:
+        st.error(f"Error stopping trade: {e}")
+
+def withdraw_funds(recipient):
+    if not recipient:
+        st.warning("Please enter a recipient TON address for withdrawal.")
+        return
+
+    try:
+        # Call the withdraw function on the smart contract with the recipient address
+        response = client.call_smart_contract(
+            contract_address, 
+            "withdraw", 
+            {"recipient": recipient}
+        )
+        st.success("Funds withdrawn successfully!")
+        return response
+    except Exception as e:
+        st.error(f"Error withdrawing funds: {e}")
+
+# Buttons to control the bot
+if st.button("Start Trading"):
+    start_trading(trade_amount, trade_pair)
+
+if st.button("Stop Trading"):
+    stop_trading()
+
+if st.button("Withdraw Funds"):
+    withdraw_funds(recipient_address)
