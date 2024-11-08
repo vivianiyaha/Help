@@ -1,11 +1,8 @@
 import streamlit as st
-import TonClient
+from ton_client import TonClient  # Replace with actual TON SDK library imports
 
-# Replace with actual TON SDK library imports
-# from ton_client import TonClient, Wallet  # Example imports
-
-# Initialize the TON Client
-# client = TonClient(network="testnet")  # Connect to mainnet, replace with correct connection if needed
+# Initialize the TON Client (ensure you're using the correct SDK)
+client = TonClient(network="testnet")  # Use correct client initialization as per your library
 
 # Replace with your actual deployed contract address
 contract_address = "EQAgtYYtQjCyPk8BmaEm__RBjJxcJLGIkwl4MrdxBH3JJof7"
@@ -15,7 +12,7 @@ st.title("TON Blockchain Trading Bot")
 # Trading bot status
 st.subheader("Bot Status")
 
-# Placeholder for the bot's status, fetched from the contract
+# Placeholder for the bot's status, fetched from the contract (if available)
 bot_status = "Inactive"  # You may want to fetch this from the contract
 
 st.write(f"Current bot status: **{bot_status}**")
@@ -33,7 +30,7 @@ recipient_address = st.text_input("Recipient TON Address for Withdrawal")
 # Define functions for each action: start, stop, and withdraw
 def start_trading(amount, pair):
     try:
-        # Call the start function on the smart contract
+        # Example: Call the start function on the smart contract
         response = client.call_smart_contract(
             contract_address, 
             "start_trade", 
@@ -46,8 +43,8 @@ def start_trading(amount, pair):
 
 def stop_trading():
     try:
-        # Call the stop function on the smart contract
-        response = client.call_smart_contract(contract_address, "stop_trade")
+        # Example: Call the stop function on the smart contract
+        response = client.call_smart_contract(contract_address, "stop_trade", {})
         st.success("Trading stopped successfully!")
         return response
     except Exception as e:
@@ -59,7 +56,7 @@ def withdraw_funds(recipient):
         return
 
     try:
-        # Call the withdraw function on the smart contract with the recipient address
+        # Example: Call the withdraw function on the smart contract
         response = client.call_smart_contract(
             contract_address, 
             "withdraw", 
